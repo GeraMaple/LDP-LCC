@@ -14,41 +14,65 @@
    not
    ---
    4. Contraste
-
+   
+   Expresión      not(zero?(0))     not(zero?(1))    not(true)
+   Resultado      (boolval #f)      (boolval #t)     (boolval #f)
 
    and
    ---
    4. Contraste
 
-
+   Expresión:     and(true, true)     and(true, false)     and(false, car(emptylist))
+   Resultao:      (boolval #t)         (boolval #f)        (boolval #f)
+   
    or
    --
    1. Propuesta informal
+   La disyunción evalúa la primera expresión, si su valor es verdadero, el constructo regresa verdadero sin evaluar la segunda expresión.
+   Si es falsa, evalúa la segunda expresión y regresa su valor de verdad.
 
    2. Especificación formal
-
+   (value-of e1 ρ) = #t
+   (value-of (or-exp e1 e2) p) = #t
+   
    4. Contraste
+
+   Expresión:      or(false, false)        or(false, true)       or(true, car(emptylist))                                  
+   Resultado:      (boolval #f)            (boolval #t)           (boolval #t)                                 
 
 
    xor
    ---
    1. Propuesta informal
+   La disyunción exclusiva evalúa dos expresiones, devuelve verdadero si y solo si los valores de ambas expresiones son diferentes (una verdadera y una falsa).
+   Si ambas son verdaderas o ambas falsas, devuelve falso.
 
    2. Especificación formal
+   xor(e1 e2) -> if e1 the not(e2) else e2
 
    4. Contraste
+
+   Expresion:       xor(true, false)       xor(true, true)          xor(false, false)                                            
+   Resultado:       (boolval #t)           (boolval #f)             (boolval #f)                                                     
 
 
    cond
    ----
    2. Especificación formal: solo la regla de cond end
 
+   cond end -> car(emptylist)
+
    4. Contraste
 
+   Expresion:      cond zero?(0) ==> 10 end           let x=3 in cond zero?(x) ==> 100 zero?(-(x,3)) ==> 200 end             cond zero?(1) ==> 100 end                                        
+   Resultao:       (intval 10)                         (intval 200)                                                           car: contract violation    expected: pair?     given: '()
 
    list
    ----
    4. Contraste
+
+   Expresion:       list(1, 2)                                    let x=4 in list(x, -(x,1), -(x,3))                            list()    
+   Resultado:     (listval (list (intval 1) (intval 2)))         (listval (list (intval 4) (intval 3) (intval 1)))             (listval '())                              
 
 
    unpack
@@ -56,6 +80,9 @@
    2. Especificación formal
 
    4. Contraste
+
+   Expresion:       unpack x = list(10) in -(x, 5)             let u=7 in unpack x y = list(u, 3) in -(x,y)              unpack x y = list(1) in x                                                                                 
+   Resultado:       (intval 5)                                 (intval 4)                                                value-of: unpack: longitudes no coinciden
 
 |#
 
@@ -134,6 +161,18 @@
      (boolval (null? (val->list v1)))]
 
     ;; --- AQUÍ van tus cláusulas del núcleo: not-exp y unpack-exp ---
+    [(not-exp e1)
+     (define v (value-of e1 ρ))
+      (if (val->bool v)
+       (boolval #f)
+       (boolval #t))]
+
+    [(unpack-exp xs e1 e2)
+     (define lst-val (value-of e1 ρ))
+     (define lst (val->list lst-val))
+     (if (= (length xs) (length lst))
+         (value-of e2 (extend-env-varios xs lst ρ))
+         (error 'value-of "unpack: longitudes no coinciden"))]
 
     ;; La tarea, lo que viene hecho en el núcleo: or
     [(or-exp e1 e2)
@@ -146,6 +185,10 @@
 ;; propio, y no escondida dentro de la cláusula.
 
 ;; --- AQUÍ van tus auxiliares, cada una con nombre propio ---
+(define (extend-env-varios xs vs env)
+  (if (null? xs)
+      env
+      (extend-env (car xs) (car vs) (extend-env-varios (cdr xs) (cdr vs) env))))
 
 ;; El orden de los valores expresados: false es menor que todo lo demás,
 ;; true es mayor que todo lo demás, y entre números es el < de siempre.

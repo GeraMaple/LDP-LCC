@@ -101,6 +101,18 @@
 
     ;; El azúcar de la tarea
     ;; --- AQUÍ van tus cláusulas de azúcar: and-exp, cond-exp y list-exp ---
+    [(and-exp e1 e2)
+     (desugar (if-exp e1 e2 (false-exp)))]
+
+    [(cond-exp es1 es2)
+     (if (null? es1)
+       (desugar (car-exp (emptylist-exp)))
+       (desugar (if-exp (car es1) (car es2) (cond-exp (cdr es1) (cdr es2)))))]
+
+    [(list-exp es)
+     (if (null? es)
+       (desugar (emptylist-exp))
+       (desugar (cons-exp (car es) (list-exp (cdr es)))))]
 
     ;; El azúcar de la tarea que viene hecho: xor
     [(xor-exp e1 e2)

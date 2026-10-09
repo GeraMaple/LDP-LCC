@@ -104,11 +104,11 @@
 ;;
 ;;   Expression ::= not(Expression)                               not-exp
 ;;               |  and(Expression, Expression)                   and-exp
-;;               |  (escribe la producción de or)                 or-exp
-;;               |  (escribe la producción de xor)                xor-exp
+;;               |  or(Expression, Expression)                    or-exp
+;;               |  xor(Expression, Expression)                   xor-exp
 ;;               |  cond {Expression ==> Expression}* end         cond-exp
 ;;               |  list(Expressions)                             list-exp
-;;               |  (escribe la producción de unpack)             unpack-exp
+;;               |  unpack{id}* = Expression in Expression        unpack-exp
 ;;
 ;; La gramática tiene también Program ::= Expression, pero no hay un struct
 ;; para Program, así que el parser arranca en Expression.

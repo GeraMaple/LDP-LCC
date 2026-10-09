@@ -49,6 +49,11 @@
 
   ;; --- AQUÍ van los contratos de tus struct: not-exp, and-exp, cond-exp,
   ;;     list-exp y unpack-exp ---
+  [struct not-exp ([e1 expression?])]
+  [struct and-exp ([e1 expression?] [e2 expression?])]
+  [struct cond-exp ([es1 (listof expression?)] [es2 (listof expression?)])]
+  [struct list-exp ([es (listof expression?)])]
+  [struct unpack-exp ([xs (listof symbol?)] [e1 expression?] [e2 expression?])]
 
   ;; La tarea, lo que viene hecho: or en el núcleo y xor como azúcar
   [struct or-exp ([e1 expression?]
@@ -92,6 +97,12 @@
 ;; --- AQUÍ van tus struct: not-exp, and-exp, cond-exp, list-exp y
 ;;     unpack-exp ---
 
+(struct not-exp (e1) #:transparent)
+(struct and-exp (e1 e2) #:transparent)
+(struct cond-exp (es1 es2) #:transparent)
+(struct list-exp (es) #:transparent)
+(struct unpack-exp (xs e1 e2) #:transparent)
+
 ;; La tarea, lo que viene hecho: or en el núcleo y xor como azúcar
 (struct or-exp (e1 e2) #:transparent)
 (struct xor-exp (e1 e2) #:transparent)
@@ -126,6 +137,11 @@
       (null?-exp? obj)
       ;; --- AQUÍ van los predicados de tus struct: not-exp?, and-exp?,
       ;;     cond-exp?, list-exp? y unpack-exp? ---
+      (not-exp? obj)
+      (and-exp? obj)
+      (cond-exp? obj)
+      (list-exp? obj)
+      (unpack-exp? obj)
 
       ;; La tarea, lo que viene hecho: or en el núcleo y xor como azúcar
       (or-exp? obj)
